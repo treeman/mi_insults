@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use serialize::{json, Decodable};
 use std::io::{File, Open, Read};
-
+use std::rand::{ mod, Rng };
 
 #[deriving(Decodable)]
 pub struct Insults {
@@ -45,6 +45,11 @@ impl Insults {
         self.failed_retorts[]
     }
 
+    pub fn rand_failed_retort<'a, R: Rng>(&'a self, rng: &mut R) -> &'a str {
+        let retorts = self.failed_retorts();
+        rand::sample(rng, retorts.iter(), 1)[0][]
+    }
+
     /// Correctly retort to insult, if there is one.
     pub fn retort<'a>(&'a self, insult: &str) -> Option<&'a str> {
         self.sword_master_retort(insult).or_else(||
@@ -52,7 +57,14 @@ impl Insults {
                 self.mi3_retort(insult).or_else(||
                     self.captain_rottingham_retort(insult).or_else(||
                         self.mi4_retort(insult)))))
+    }
 
+    /// Correctly retort to an insult, with fallback to a random failed retort.
+    pub fn retort_or_rand_fail<'a, R: Rng>(&'a self, insult: &str, rng: &mut R) -> &'a str {
+        match self.retort(insult) {
+            Some(x) => x,
+            None => self.rand_failed_retort(rng),
+        }
     }
 
     /// Retort to an insult from Monkey Island 1.
@@ -112,6 +124,11 @@ impl Insults {
         res.push_all(self.captain_rottingham_insults()[]);
         res.push_all(self.monkey_island4_insults()[]);
         res
+    }
+
+    pub fn rand_insult<R: Rng>(&self, rng: &mut R) -> &String {
+        let all = self.insults();
+        rand::sample(rng, all.into_iter(), 1)[0]
     }
 
     pub fn mi1_insults(&self) -> Vec<&String> {
