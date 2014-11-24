@@ -1,0 +1,5 @@
+[package]
+
+name = "mi_insults"
+version = "0.0.1"
+authors = ["Jonas Hietala <mail@jonashietala.se>"]
